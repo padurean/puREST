@@ -1,0 +1,16 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Golang REST API boilerplate with JWT-based authentication, RBAC authorization and PostgreSQL.",
+        "title": "puREST API",
+        "contact": {},
+        "license": {
+            "name": "MIT",
+            "url": "https://tldrlegal.com/license/mit-license"
+        },
+        "version": "1.0"
+    },
+    "host": "purecore.ro/purest",
+    "basePath": "/api",
+    "paths": {}
+}

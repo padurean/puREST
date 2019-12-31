@@ -1,0 +1,13 @@
+basePath: /api
+host: purecore.ro/purest
+info:
+  contact: {}
+  description: Golang REST API boilerplate with JWT-based authentication, RBAC authorization
+    and PostgreSQL.
+  license:
+    name: MIT
+    url: https://tldrlegal.com/license/mit-license
+  title: puREST API
+  version: "1.0"
+paths: {}
+swagger: "2.0"

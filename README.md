@@ -2,6 +2,8 @@
 
 ## Golang REST API boilerplate with JWT-based authentication, RBAC authorization, PostgreSQL and Swagger for API docs
 
+### :warning: This is project is WiP!
+
 ---
 
 ### (Re)Generate Swagger docs

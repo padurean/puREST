@@ -7,9 +7,14 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/go-chi/chi v4.0.2+incompatible
+	github.com/go-chi/docgen v1.0.5
+	github.com/go-chi/render v1.0.1
 	github.com/go-openapi/jsonreference v0.19.3 // indirect
 	github.com/go-openapi/spec v0.19.5 // indirect
 	github.com/go-openapi/swag v0.19.6 // indirect
+	github.com/go-playground/locales v0.13.0
+	github.com/go-playground/universal-translator v0.17.0
+	github.com/go-playground/validator/v10 v10.1.0
 	github.com/gofrs/uuid v3.2.0+incompatible // indirect
 	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
 	github.com/jackc/pgx v3.6.0+incompatible
@@ -19,12 +24,11 @@ require (
 	github.com/mailru/easyjson v0.7.0 // indirect
 	github.com/rs/zerolog v1.17.2
 	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24 // indirect
-	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/swaggo/http-swagger v0.0.0-20191217015043-dfd2c09b9590
 	github.com/swaggo/swag v1.6.3
 	golang.org/x/crypto v0.0.0-20191227163750-53104e6ec876 // indirect
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553 // indirect
-	golang.org/x/tools v0.0.0-20191230220329-2aa90c603ae3 // indirect
+	golang.org/x/tools v0.0.0-20200102140908-9497f49d5709 // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/yaml.v2 v2.2.7 // indirect

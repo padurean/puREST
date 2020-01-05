@@ -15,6 +15,8 @@ const appPrefix = "PUREST_"
 const dbPrefix = appPrefix + "DB_"
 const dbDriver = dbPrefix + "DRIVER"
 const dbURL = dbPrefix + "URL"
+const dbUser = dbPrefix + "USER"
+const dbSchema = dbPrefix + "SCHEMA"
 
 const httpPrefix = appPrefix + "HTTP_"
 const httpPort = httpPrefix + "PORT"
@@ -29,6 +31,20 @@ const logMaxSize = logPrefix + "MAX_SIZE"
 const logMaxBackups = logPrefix + "MAX_BACKUPS"
 const logMaxAge = logPrefix + "MAX_AGE"
 const logRequests = logPrefix + "REQUESTS"
+
+// Load environment. For details see https://github.com/joho/godotenv
+func init() {
+	log.Info().Msg("loading env ...")
+	env := GetAppEnv().String()
+	log.Info().Msgf("loaded `%s` env", env)
+
+	godotenv.Load(".env." + env + ".local")
+	if "test" != env {
+		godotenv.Load(".env.local")
+	}
+	godotenv.Load(".env." + env)
+	godotenv.Load() // The Original .env
+}
 
 func getEnvOrPanic(key string) string {
 	value := strings.TrimSpace(os.Getenv(key))
@@ -57,18 +73,6 @@ func getIntEnvOrPanic(key string) int {
 	return v
 }
 
-// Load environment. For details see https://github.com/joho/godotenv
-func Load() {
-	env, _ := GetAppEnv()
-
-	godotenv.Load(".env." + env + ".local")
-	if "test" != env {
-		godotenv.Load(".env.local")
-	}
-	godotenv.Load(".env." + env)
-	godotenv.Load() // The Original .env
-}
-
 // AppEnv ...
 type AppEnv int8
 
@@ -79,22 +83,32 @@ const (
 	Production
 )
 
-// GetAppEnv ...
-func GetAppEnv() (string, AppEnv) {
-	env := strings.ToLower(strings.TrimSpace(os.Getenv(appPrefix + "ENV")))
-	if "" == env {
-		env = "development"
-	}
-	switch env {
-	case "development":
-		return env, Development
-	case "test":
-		return env, Test
-	case "production":
-		return env, Production
+func (ae AppEnv) String() string {
+	switch ae {
+	case Test:
+		return "test"
+	case Production:
+		return "production"
 	default:
-		return "development", Development
+		return "development"
 	}
+}
+
+// ParseAppEnv ...
+func ParseAppEnv(appEnvStr string) AppEnv {
+	switch appEnvStr {
+	case Test.String():
+		return Test
+	case Production.String():
+		return Production
+	default:
+		return Development
+	}
+}
+
+// GetAppEnv ...
+func GetAppEnv() AppEnv {
+	return ParseAppEnv(strings.ToLower(strings.TrimSpace(os.Getenv(appPrefix + "ENV"))))
 }
 
 // GetDbDriver ...
@@ -105,6 +119,16 @@ func GetDbDriver() string {
 // GetDbURL ...
 func GetDbURL() string {
 	return getEnvOrPanic(dbURL)
+}
+
+// GetDbUser ...
+func GetDbUser() string {
+	return getEnvOrPanic(dbUser)
+}
+
+// GetDbSchema ...
+func GetDbSchema() string {
+	return getEnvOrPanic(dbSchema)
 }
 
 // GetHTTPPort ...

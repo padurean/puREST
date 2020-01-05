@@ -1,11 +1,14 @@
-package controllers
+package server
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/docgen"
+	"github.com/padurean/purest/controllers"
 	"github.com/padurean/purest/database"
 	"github.com/padurean/purest/env"
 	"github.com/padurean/purest/logging"
@@ -61,19 +64,54 @@ func (router Router) setupMiddlewares(db *database.DB, logger *logging.Logger) {
 }
 
 func (router Router) setupRoutes() {
+	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		msg := "Hello, my name is puREST. Pleased to meet you! :)"
+		logging.Simple(r).Debug().Msgf("Simple Logger: %s", msg)
+		logging.Detailed(r).Debug().Msgf("Detailed Logger: %s", msg)
+		w.Write([]byte(msg))
+	})
+
 	// setup API Docs (Swagger) routes
 	router.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8000/swagger/doc.json"),
 	))
-	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		logging.Simple(r).Debug().Msg("Simple Logger: Buona Sera, Siniora!!! >:D")
-		logging.Detailed(r).Debug().Msg("Detailed Logger: Buona Sera, Siniora!!! >:D")
-		w.Write([]byte("Hello, my name is puREST. Pleased to meet you! :)"))
+
+	router.Route("/api", func(router chi.Router) {
+		router.Route("/v1", func(router chi.Router) {
+			router.Route("/users", func(router chi.Router) {
+				router.Post("/", controllers.UserCreate)
+				router.Route("/{id}", func(router chi.Router) {
+					router.Get("/", controllers.UserGet)
+				})
+			})
+		})
 	})
+}
+
+func (router Router) generateAPIDocs(logger *logging.Logger) {
+	// jsonDocs := docgen.JSONRoutesDoc(router)
+	mdDocs := docgen.MarkdownRoutesDoc(router, docgen.MarkdownOpts{
+		ProjectPath: "github.com/padurean/purest",
+		Intro:       "Welcome to the puREST generated docs!",
+	})
+	mdDocsFilename := "docs/docs.md"
+	mdDocsFile, err := os.Create(mdDocsFilename)
+	if err != nil {
+		logger.Err(err).Msgf("error creating API docs markdown file %s", mdDocsFilename)
+	}
+	defer mdDocsFile.Close()
+	_, err = mdDocsFile.WriteString(mdDocs)
+	if err != nil {
+		logger.Err(err).Msgf("error writing markdown content to API docs file %s", mdDocsFilename)
+	}
+	logger.Info().Msgf("%s API docs file written successfully", mdDocsFilename)
 }
 
 // Setup ...
 func (router Router) Setup(db *database.DB, logger *logging.Logger) {
 	router.setupMiddlewares(db, logger)
 	router.setupRoutes()
+	if env.GetAppEnv() == env.Development {
+		router.generateAPIDocs(logger)
+	}
 }

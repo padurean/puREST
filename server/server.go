@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
-	"github.com/padurean/purest/controllers"
 	"github.com/padurean/purest/database"
 	"github.com/padurean/purest/logging"
 )
@@ -50,7 +49,7 @@ func gracefullShutdown(server *http.Server, logger *logging.Logger, quit <-chan 
 }
 
 func newServer(port string, logger *logging.Logger, db *database.DB) *http.Server {
-	router := controllers.Router{Router: chi.NewRouter()}
+	router := Router{Router: chi.NewRouter()}
 	router.Setup(db, logger)
 
 	return &http.Server{

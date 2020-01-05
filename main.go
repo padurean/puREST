@@ -17,8 +17,6 @@ import (
 // @host purecore.ro/purest
 // @BasePath /api
 func main() {
-	env.Load()
-
 	logger := logging.FromEnv()
 	// also set the logger as output for any standard log usage
 	log.SetFlags(0)

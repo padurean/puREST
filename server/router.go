@@ -83,6 +83,7 @@ func (router Router) setupRoutes() {
 				router.Route("/{id}", func(router chi.Router) {
 					router.Use(controllers.UserCtx)
 					router.Get("/", controllers.UserGet)
+					router.Put("/", controllers.UserUpdate)
 				})
 			})
 		})

@@ -110,6 +110,35 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 	render.Render(w, r, &UserResponse{User: u})
 }
 
+// UserUpdate ...
+func UserUpdate(w http.ResponseWriter, r *http.Request) {
+	uReq := &UserRequest{}
+	if err := render.Bind(r, uReq); err != nil {
+		logging.Simple(r).Err(err).Msgf("error unmarshaling user from JSON")
+		render.Render(w, r, ErrBadRequest(err))
+		return
+	}
+	u := r.Context().Value(ContextKeyUser).(*database.User)
+	uReq.ID = u.ID
+
+	db := r.Context().Value("db").(*database.DB)
+	u, err := uReq.Update(db)
+	if err != nil {
+		switch err.(type) {
+		case *database.ErrDuplicateRow:
+			render.Render(w, r, ErrUnprocessableEntity(err))
+			return
+		default:
+			logging.Simple(r).Err(err).Msgf("error updating user %+v", uReq.User)
+			render.Render(w, r, ErrInternalServer(err))
+			return
+		}
+	}
+
+	render.Status(r, http.StatusOK)
+	render.Render(w, r, &UserResponse{User: u})
+}
+
 // UserGet ...
 func UserGet(w http.ResponseWriter, r *http.Request) {
 	u := r.Context().Value(ContextKeyUser).(*database.User)

@@ -69,7 +69,9 @@ Welcome to the puREST generated docs!
 				- [UserCtx](/controllers/user.go#L50)
 				- **/**
 					- _GET_
-						- [UserGet](/controllers/user.go#L114)
+						- [UserGet](/controllers/user.go#L143)
+					- _PUT_
+						- [UserUpdate](/controllers/user.go#L114)
 
 </details>
 <details>

@@ -22,25 +22,35 @@ func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-// ErrInvalidRequest ...
-func ErrInvalidRequest(err error) render.Renderer {
+// ErrBadRequest ...
+func ErrBadRequest(err error) render.Renderer {
 	return &ErrResponse{
 		Err:            err,
 		HTTPStatusCode: 400,
-		StatusText:     "Invalid request.",
+		StatusText:     "bad request",
 		ErrorText:      err.Error(),
 	}
 }
 
-// ErrRender ...
-func ErrRender(err error) render.Renderer {
+// ErrUnprocessableEntity ...
+func ErrUnprocessableEntity(err error) render.Renderer {
 	return &ErrResponse{
 		Err:            err,
 		HTTPStatusCode: 422,
-		StatusText:     "Error rendering response.",
+		StatusText:     "unprocessable entity",
 		ErrorText:      err.Error(),
 	}
 }
 
 // ErrNotFound ...
-var ErrNotFound = &ErrResponse{HTTPStatusCode: 404, StatusText: "Resource not found."}
+var ErrNotFound = &ErrResponse{HTTPStatusCode: 404, StatusText: "resource not found"}
+
+// ErrInternalServer ...
+func ErrInternalServer(err error) render.Renderer {
+	return &ErrResponse{
+		Err:            err,
+		HTTPStatusCode: 500,
+		StatusText:     "internal server error",
+		ErrorText:      err.Error(),
+	}
+}

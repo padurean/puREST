@@ -44,7 +44,7 @@ Welcome to the puREST generated docs!
 		- **/users/***
 			- **/**
 				- _POST_
-					- [UserCreate](/controllers/user.go#L56)
+					- [UserCreate](/controllers/user.go#L87)
 
 </details>
 <details>
@@ -66,9 +66,10 @@ Welcome to the puREST generated docs!
 	- **/v1/***
 		- **/users/***
 			- **/{id}/***
+				- [UserCtx](/controllers/user.go#L50)
 				- **/**
 					- _GET_
-						- [UserGet](/controllers/user.go#L79)
+						- [UserGet](/controllers/user.go#L114)
 
 </details>
 <details>

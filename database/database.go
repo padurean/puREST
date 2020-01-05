@@ -1,7 +1,6 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
 
 	// initialize database (PosgreSQL) driver
@@ -20,16 +19,21 @@ func MustConnect(driver string, url string) *DB {
 }
 
 // Create ...
-func Create(db *DB, insert string, selectByID string, arg interface{}, dest interface{}) error {
-	stmtInsert, err := db.PrepareNamed(insert)
+func Create(
+	db *DB,
+	sqlInsert string,
+	sqlSelectByID string,
+	argInsert interface{},
+	dest interface{}) error {
+	stmtInsert, err := db.PrepareNamed(sqlInsert)
 	if err != nil {
 		return fmt.Errorf("error preparing named db insert: %v", err)
 	}
 	var id int64
-	if err := stmtInsert.Get(&id, arg); err != nil {
+	if err := stmtInsert.Get(&id, argInsert); err != nil {
 		return fmt.Errorf("error executing named db insert: %v", err)
 	}
-	stmtSelectByID, err := db.Preparex(selectByID)
+	stmtSelectByID, err := db.Preparex(sqlSelectByID)
 	if err != nil {
 		return fmt.Errorf("error preparing db select by ID: %v", err)
 	}
@@ -40,18 +44,10 @@ func Create(db *DB, insert string, selectByID string, arg interface{}, dest inte
 }
 
 // Get ...
-func Get(db *DB, selectByID string, id int64, dest interface{}) error {
-	stmtSelectByID, err := db.Preparex(selectByID)
+func Get(db *DB, sqlSelect string, argSelect interface{}, dest interface{}) error {
+	stmtSelect, err := db.Preparex(sqlSelect)
 	if err != nil {
 		return fmt.Errorf("error preparing db select by ID: %v", err)
 	}
-	if err := stmtSelectByID.Get(dest, id); err != nil {
-		switch {
-		case err == sql.ErrNoRows:
-			return fmt.Errorf("no record found for ID %d", id)
-		default:
-			return fmt.Errorf("error executing db select by ID: %v", err)
-		}
-	}
-	return nil
+	return stmtSelect.Get(dest, argSelect)
 }

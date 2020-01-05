@@ -5,6 +5,15 @@ import (
 	"encoding/json"
 )
 
+// ContextKey ...
+type ContextKey string
+
+// ContextKey ...
+const (
+	ContextKeyUser ContextKey = "user"
+	// ...
+)
+
 // NullString is a wrapper around sql.NullString
 type NullString sql.NullString
 
@@ -20,7 +29,7 @@ func (ns *NullString) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON method is called by json.Unmarshal,
 // whenever it is of type NullString
 func (ns *NullString) UnmarshalJSON(data []byte) error {
-	if data == nil {
+	if string(data) == "null" {
 		ns.Valid = false
 		ns.String = ""
 		return nil

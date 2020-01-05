@@ -81,6 +81,7 @@ func (router Router) setupRoutes() {
 			router.Route("/users", func(router chi.Router) {
 				router.Post("/", controllers.UserCreate)
 				router.Route("/{id}", func(router chi.Router) {
+					router.Use(controllers.UserCtx)
 					router.Get("/", controllers.UserGet)
 				})
 			})

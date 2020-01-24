@@ -45,6 +45,9 @@ func ErrUnprocessableEntity(err error) render.Renderer {
 // ErrNotFound ...
 var ErrNotFound = &ErrResponse{HTTPStatusCode: 404, StatusText: "resource not found"}
 
+// ErrWrongPassword ...
+var ErrWrongPassword = &ErrResponse{HTTPStatusCode: 401, StatusText: "wrong password"}
+
 // ErrInternalServer ...
 func ErrInternalServer(err error) render.Renderer {
 	return &ErrResponse{

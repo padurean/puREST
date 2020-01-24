@@ -21,7 +21,7 @@ Welcome to the puREST generated docs!
 - [WithValue.func1]()
 - **/**
 	- _GET_
-		- [Router.setupRoutes.func1](/server/router.go#L67)
+		- [Router.setupRoutes.func1](/server/router.go#L106)
 
 </details>
 <details>
@@ -44,7 +44,34 @@ Welcome to the puREST generated docs!
 		- **/users/***
 			- **/**
 				- _POST_
-					- [UserCreate](/controllers/user.go#L87)
+					- [UserCreate](/controllers/user.go#L149)
+				- _GET_
+					- [paginate](/server/router.go#L80)
+					- [UserList](/controllers/user.go#L201)
+
+</details>
+<details>
+<summary>`/api/*/v1/*/users/*/sign-in/{usernameOrEmail}`</summary>
+
+- [RequestID]()
+- [RealIP]()
+- [Recoverer]()
+- [Heartbeat.func1]()
+- [Timeout.func1]()
+- [WithValue.func1]()
+- [NewHandler.func1]()
+- [RemoteAddrHandler.func1]()
+- [UserAgentHandler.func1]()
+- [RefererHandler.func1]()
+- [RequestIDHandler.func1]()
+- [WithValue.func1]()
+- **/api/***
+	- **/v1/***
+		- **/users/***
+			- **/sign-in/{usernameOrEmail}**
+				- _POST_
+					- [UserCtx](/controllers/user.go#L86)
+					- [UserSignIn](/controllers/user.go#L182)
 
 </details>
 <details>
@@ -66,12 +93,14 @@ Welcome to the puREST generated docs!
 	- **/v1/***
 		- **/users/***
 			- **/{id}/***
-				- [UserCtx](/controllers/user.go#L50)
+				- [UserCtx](/controllers/user.go#L86)
 				- **/**
+					- _DELETE_
+						- [UserDelete](/controllers/user.go#L267)
 					- _GET_
-						- [UserGet](/controllers/user.go#L143)
+						- [UserGet](/controllers/user.go#L260)
 					- _PUT_
-						- [UserUpdate](/controllers/user.go#L114)
+						- [UserUpdate](/controllers/user.go#L226)
 
 </details>
 <details>
@@ -95,4 +124,4 @@ Welcome to the puREST generated docs!
 
 </details>
 
-Total # of routes: 4
+Total # of routes: 5

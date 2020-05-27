@@ -5,6 +5,7 @@
 ### :warning: **_This project is WiP!_**
 
 ---
+![Go](https://github.com/padurean/puREST/workflows/Go/badge.svg)
 
 ### **1. (Re)Generate Swagger docs**
 

@@ -9,6 +9,7 @@ import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
+	"github.com/padurean/purest/internal/auth"
 	"github.com/rs/zerolog/log"
 )
 
@@ -31,6 +32,12 @@ func init() {
 	})
 	//<--
 
+	//--> register custom validations
+	_ = validate.RegisterValidation("password", func(fl validator.FieldLevel) bool {
+		return auth.IsStrongPassword(fl.Field().String()) == nil
+	})
+	//<--
+
 	//--> register validator translation
 	en := en.New()
 	uni := ut.New(en, en)
@@ -41,6 +48,19 @@ func init() {
 		return
 	}
 	en_translations.RegisterDefaultTranslations(validate, translator)
+	//----> custom translations
+	_ = validate.RegisterTranslation(
+		"password",
+		translator,
+		func(ut ut.Translator) error {
+			return ut.Add("password", auth.PasswordRequirementsMsg, true)
+		},
+		func(ut ut.Translator, fe validator.FieldError) string {
+			t, _ := ut.T("password", fe.Field())
+			return t
+		},
+	)
+	//<----
 	//<--
 }
 

@@ -21,7 +21,7 @@ Welcome to the puREST generated docs!
 - [WithValue.func1]()
 - **/**
 	- _GET_
-		- [Router.setupRoutes.func1](/server/router.go#L106)
+		- [Router.setupRoutes.func1]()
 
 </details>
 <details>
@@ -44,10 +44,12 @@ Welcome to the puREST generated docs!
 		- **/users/***
 			- **/**
 				- _POST_
-					- [UserCreate](/controllers/user.go#L149)
+					- [authenticate]()
+					- [UserCreate]()
 				- _GET_
-					- [paginate](/server/router.go#L80)
-					- [UserList](/controllers/user.go#L201)
+					- [authenticate]()
+					- [paginate]()
+					- [UserList]()
 
 </details>
 <details>
@@ -70,8 +72,8 @@ Welcome to the puREST generated docs!
 		- **/users/***
 			- **/sign-in/{usernameOrEmail}**
 				- _POST_
-					- [UserCtx](/controllers/user.go#L86)
-					- [UserSignIn](/controllers/user.go#L182)
+					- [UserCtx]()
+					- [UserSignIn]()
 
 </details>
 <details>
@@ -93,14 +95,14 @@ Welcome to the puREST generated docs!
 	- **/v1/***
 		- **/users/***
 			- **/{id}/***
-				- [UserCtx](/controllers/user.go#L86)
+				- [UserCtx]()
 				- **/**
-					- _DELETE_
-						- [UserDelete](/controllers/user.go#L267)
-					- _GET_
-						- [UserGet](/controllers/user.go#L260)
 					- _PUT_
-						- [UserUpdate](/controllers/user.go#L226)
+						- [UserUpdate]()
+					- _DELETE_
+						- [UserDelete]()
+					- _GET_
+						- [UserGet]()
 
 </details>
 <details>

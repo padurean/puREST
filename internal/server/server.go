@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
-	"github.com/padurean/purest/database"
-	"github.com/padurean/purest/logging"
+	"github.com/padurean/purest/internal/database"
+	"github.com/padurean/purest/internal/logging"
 )
 
 // Start ...

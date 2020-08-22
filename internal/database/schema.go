@@ -1,7 +1,7 @@
 package database
 
 import (
-	"github.com/padurean/purest/env"
+	"github.com/padurean/purest/internal/env"
 )
 
 var dbUser string
@@ -21,6 +21,7 @@ func init() {
 			email character varying(255) NOT NULL,
 			first_name character varying(255),
 			last_name character varying(255),
+			role smallint,
 			created timestamp with time zone NOT NULL DEFAULT now(),
 			updated timestamp with time zone NOT NULL DEFAULT now(),
 			deleted timestamp with time zone

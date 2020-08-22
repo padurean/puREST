@@ -1,13 +1,129 @@
-basePath: /api
-host: purecore.ro/purest
+basePath: /api/v1
+definitions:
+  controller.SignInRequest:
+    properties:
+      password:
+        type: string
+    required:
+    - password
+    type: object
+  controller.SignInResponse:
+    properties:
+      expiration:
+        type: string
+      token:
+        type: string
+    type: object
+  controller.UserRequest:
+    properties:
+      created:
+        type: string
+      deleted:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      password:
+        type: string
+      role:
+        type: integer
+      updated:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  controller.UserResponse:
+    properties:
+      created:
+        type: string
+      deleted:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      password:
+        type: string
+      role:
+        type: integer
+      updated:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
 info:
   contact: {}
-  description: Golang REST API boilerplate with JWT-based authentication, RBAC authorization
-    and PostgreSQL.
+  description: Golang REST API boilerplate with PASETO tokens authentication, RBAC authorization and PostgreSQL.
   license:
     name: MIT
     url: https://tldrlegal.com/license/mit-license
   title: puREST API
   version: "1.0"
-paths: {}
+paths:
+  /sign-in/{usernameOrEmail}:
+    post:
+      consumes:
+      - application/json
+      operationId: UserSignIn
+      parameters:
+      - description: Request body payload
+        in: body
+        name: SignInRequest
+        required: true
+        schema:
+          $ref: '#/definitions/controller.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.SignInResponse'
+      summary: Signs-in the specified user
+      tags:
+      - user
+  /users:
+    post:
+      consumes:
+      - application/json
+      operationId: UserCreate
+      parameters:
+      - description: Bearer <token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request body payload
+        in: body
+        name: UserRequest
+        required: true
+        schema:
+          $ref: '#/definitions/controller.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.UserResponse'
+      summary: Creates a new user
+      tags:
+      - user
 swagger: "2.0"

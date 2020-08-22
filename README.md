@@ -11,6 +11,9 @@
 
 See [Swaggo example for net/http](https://github.com/swaggo/http-swagger)
 
+Then run the following command after any API changes:
+`swag init --dir . -g cmd/server/main.go`
+
 ---
 
 ### **2. Specify the app env at runtime**

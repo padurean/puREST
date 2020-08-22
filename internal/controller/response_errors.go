@@ -1,4 +1,4 @@
-package controllers
+package controller
 
 import (
 	"net/http"
@@ -26,8 +26,8 @@ func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 func ErrBadRequest(err error) render.Renderer {
 	return &ErrResponse{
 		Err:            err,
-		HTTPStatusCode: 400,
-		StatusText:     "bad request",
+		HTTPStatusCode: http.StatusBadRequest,
+		StatusText:     http.StatusText(http.StatusBadRequest),
 		ErrorText:      err.Error(),
 	}
 }
@@ -36,24 +36,34 @@ func ErrBadRequest(err error) render.Renderer {
 func ErrUnprocessableEntity(err error) render.Renderer {
 	return &ErrResponse{
 		Err:            err,
-		HTTPStatusCode: 422,
-		StatusText:     "unprocessable entity",
+		HTTPStatusCode: http.StatusUnprocessableEntity,
+		StatusText:     http.StatusText(http.StatusUnprocessableEntity),
 		ErrorText:      err.Error(),
 	}
 }
 
 // ErrNotFound ...
-var ErrNotFound = &ErrResponse{HTTPStatusCode: 404, StatusText: "resource not found"}
+var ErrNotFound = &ErrResponse{
+	HTTPStatusCode: http.StatusNotFound,
+	StatusText:     http.StatusText(http.StatusNotFound),
+}
 
-// ErrWrongPassword ...
-var ErrWrongPassword = &ErrResponse{HTTPStatusCode: 401, StatusText: "wrong password"}
+// ErrUnauthorized ...
+func ErrUnauthorized(err error) render.Renderer {
+	return &ErrResponse{
+		Err:            err,
+		HTTPStatusCode: http.StatusUnauthorized,
+		StatusText:     http.StatusText(http.StatusUnauthorized),
+		ErrorText:      err.Error(),
+	}
+}
 
 // ErrInternalServer ...
 func ErrInternalServer(err error) render.Renderer {
 	return &ErrResponse{
 		Err:            err,
-		HTTPStatusCode: 500,
-		StatusText:     "internal server error",
+		HTTPStatusCode: http.StatusInternalServerError,
+		StatusText:     http.StatusText(http.StatusInternalServerError),
 		ErrorText:      err.Error(),
 	}
 }

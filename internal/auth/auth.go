@@ -2,6 +2,7 @@ package auth
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -73,18 +74,22 @@ func readKeyFromFile(fileName string) ([]byte, error) {
 }
 
 // GenerateToken ...
-func GenerateToken(userID int64) (string, error) {
+func GenerateToken(userID int64, role Role) (string, time.Time, error) {
+	expiration := time.Now().Add(24 * time.Hour)
 	jsonToken := paseto.JSONToken{
-		Expiration: time.Now().Add(24 * time.Hour),
+		Expiration: expiration,
 		Subject:    strconv.FormatInt(userID, 10),
 	}
+	jsonToken.Set("role", fmt.Sprintf("%d", role))
 	footer := "puREST"
-	return pasetoV2.Sign(privateKey, jsonToken, footer)
+	token, err := pasetoV2.Sign(privateKey, jsonToken, footer)
+	return token, expiration, err
 }
 
 // JSONToken ...
 type JSONToken struct {
 	UserID     int64
+	Role       Role
 	Expiration time.Time
 }
 
@@ -102,5 +107,17 @@ func VerifyToken(token string) (*JSONToken, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error parsing token subject as user ID (i.e. int64): %v", err)
 	}
-	return &JSONToken{UserID: userID, Expiration: jsonToken.Expiration}, nil
+	roleStr := jsonToken.Get("role")
+	if roleStr == "" {
+		return nil, errors.New("user role is missing from token")
+	}
+	role, err := ParseRole(roleStr)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing user role from token: %v", err)
+	}
+	return &JSONToken{
+		UserID:     userID,
+		Role:       role,
+		Expiration: jsonToken.Expiration,
+	}, nil
 }

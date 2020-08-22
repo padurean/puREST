@@ -1,13 +1,14 @@
 package logging
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path"
 
-	"github.com/padurean/purest/env"
+	"github.com/padurean/purest/internal/env"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
 	"github.com/rs/zerolog/log"
@@ -51,7 +52,11 @@ type Logger struct {
 
 // Simple ...
 func Simple(r *http.Request) *Logger {
-	ctx := r.Context()
+	return SimpleFromCtx(r.Context())
+}
+
+// SimpleFromCtx ...
+func SimpleFromCtx(ctx context.Context) *Logger {
 	logger, ok := ctx.Value("logger").(*Logger)
 	if !ok {
 		panic(fmt.Sprintf("logger not found on request context"))
@@ -62,6 +67,11 @@ func Simple(r *http.Request) *Logger {
 // Detailed ...
 func Detailed(r *http.Request) *zerolog.Logger {
 	return hlog.FromRequest(r)
+}
+
+// DetailedFromCtx ...
+func DetailedFromCtx(ctx context.Context) *zerolog.Logger {
+	return log.Ctx(ctx)
 }
 
 // FromEnv ...

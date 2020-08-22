@@ -5,18 +5,18 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rs/zerolog/log"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/padurean/purest/internal/auth"
 )
 
 // User ...
 type User struct {
 	ID        int64          `json:"id"`
-	Username  string         `json:"username" validate:"required"`
-	Password  string         `json:"password" validate:"required"`
+	Username  string         `json:"username" validate:"required,alphanum"`
+	Password  string         `json:"password" validate:"required,password"`
 	Email     string         `json:"email" validate:"required,email"`
 	FirstName sql.NullString `json:"first_name" db:"first_name"`
 	LastName  sql.NullString `json:"last_name" db:"last_name"`
+	Role      auth.Role      `json:"role"`
 	Created   time.Time      `json:"created"`
 	Updated   time.Time      `json:"updated"`
 	Deleted   sql.NullTime   `json:"deleted,omitempty"`
@@ -31,10 +31,10 @@ var userSQLSelectList string
 var userSQLMarkAsDeleted string
 
 func init() {
-	userSQLInsert = `INSERT INTO ` + dbSchema + `.user (username, password, email, first_name, last_name)
-		VALUES (:username, :password, :email, :first_name, :last_name) RETURNING id`
+	userSQLInsert = `INSERT INTO ` + dbSchema + `.user (username, password, email, first_name, last_name, role)
+		VALUES (:username, :password, :email, :first_name, :last_name, :role) RETURNING id`
 	userSQLUpdate = `UPDATE ` + dbSchema + `.user
-		SET username=:username, password=:password, email=:email, first_name=:first_name, last_name=:last_name, updated=CURRENT_TIMESTAMP
+		SET username=:username, password=:password, email=:email, first_name=:first_name, last_name=:last_name, role=:role, updated=CURRENT_TIMESTAMP
 		WHERE id=:id RETURNING id`
 	userSQLSelectByID = `SELECT * FROM ` + dbSchema + `.user WHERE id=$1`
 	userSQLSelectByUsername = `SELECT * FROM ` + dbSchema + `.user WHERE username=$1`
@@ -73,38 +73,6 @@ func (u *User) validateNoDuplicate(db *DB) error {
 	}
 
 	return nil
-}
-
-// NOTE: bcrypt.MinCost is 4
-const passwordHashCostDefault = 6
-const passwordHashCostHigh = bcrypt.DefaultCost
-
-// HashSaltAndSetPassword ...
-func (u *User) HashSaltAndSetPassword() error {
-	// TODO OGG: determine the value of isAdmin dynamically
-	var isAdmin = false
-	hashCost := passwordHashCostDefault
-	if isAdmin {
-		hashCost = passwordHashCostHigh
-	}
-	hashedPasswordBytes, err := bcrypt.GenerateFromPassword([]byte(u.Password), hashCost)
-	if err != nil {
-		return fmt.Errorf("error hashing password: %v", err)
-	}
-	hashedPassword := string(hashedPasswordBytes)
-	log.Error().Msgf("password: %s, hashed password (len = %d): %s", u.Password, len([]rune(hashedPassword)), hashedPassword)
-	u.Password = hashedPassword
-	return nil
-}
-
-// ComparePasswords ...
-func (u *User) ComparePasswords(plainPassword string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(plainPassword))
-	if err != nil {
-		log.Error().Err(err).Msgf("error comparing hashed and plain passwords for user %d", u.ID)
-		return false
-	}
-	return true
 }
 
 // Create ...

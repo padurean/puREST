@@ -1,13 +1,10 @@
-package controllers
+package controller
 
 import (
 	"database/sql"
 	"encoding/json"
 	"time"
 )
-
-// ContextKey ...
-type ContextKey string
 
 //===> NullString
 

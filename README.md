@@ -1,6 +1,6 @@
 # puREST
 
-## Golang REST API boilerplate with JWT-based authentication, RBAC authorization, PostgreSQL and Swagger for API docs
+## Golang REST API boilerplate with authentication using PASETO tokens, RBAC authorization, PostgreSQL and Swagger for API docs
 
 ### :warning: **_This project is WiP!_**
 

@@ -97,12 +97,12 @@ Welcome to the puREST generated docs!
 			- **/{id}/***
 				- [UserCtx]()
 				- **/**
-					- _PUT_
-						- [UserUpdate]()
 					- _DELETE_
 						- [UserDelete]()
 					- _GET_
 						- [UserGet]()
+					- _PUT_
+						- [UserUpdate]()
 
 </details>
 <details>

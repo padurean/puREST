@@ -226,7 +226,7 @@ var SwaggerInfo = swaggerInfo{
 	BasePath:    "/api/v1",
 	Schemes:     []string{},
 	Title:       "puREST API",
-	Description: "Golang REST API boilerplate with PASETO tokens authentication, RBAC authorization and PostgreSQL.",
+	Description: "Golang REST API boilerplate with authentication using PASETO tokens, RBAC authorization, PostgreSQL and Swagger for API docs.",
 }
 
 type s struct{}

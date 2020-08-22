@@ -12,7 +12,7 @@ import (
 
 // @title puREST API
 // @version 1.0
-// @description Golang REST API boilerplate with PASETO tokens authentication, RBAC authorization and PostgreSQL.
+// @description Golang REST API boilerplate with authentication using PASETO tokens, RBAC authorization, PostgreSQL and Swagger for API docs.
 // @license.name MIT
 // @license.url https://tldrlegal.com/license/mit-license
 // @basePath /api/v1

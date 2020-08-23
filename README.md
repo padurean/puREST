@@ -24,3 +24,19 @@ Then run the following command after any API changes:
 
 For all supported values for `PUREST_ENV` see the suffix of _**.env.&lt;env&gt;**_ files:
 `development` (**default**), `test` and `production`.
+
+### **3. Run**
+
+Create PostgreSQL database and user:
+
+```console
+CREATE USER purest_user WITH ENCRYPTED PASSWORD 'purest_pass';
+CREATE DATABASE purest_db;
+GRANT ALL PRIVILEGES ON DATABASE purest_db TO purest_user;
+```
+
+Run it:
+
+`go run cmd/server/main.go`
+
+The built-in Swagger UI can be accessed at: <http://localhost:8000/swagger/>

@@ -11,8 +11,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/padurean/purest/internal"
 	"github.com/padurean/purest/internal/auth"
+	icontext "github.com/padurean/purest/internal/context"
 	"github.com/padurean/purest/internal/database"
 	"github.com/padurean/purest/internal/logging"
 	"github.com/padurean/purest/internal/validator"
@@ -80,7 +80,11 @@ func (u *UserResponse) Render(w http.ResponseWriter, r *http.Request) error {
 // UserCtx ...
 func UserCtx(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		db := r.Context().Value(internal.ContextKeyDB).(*database.DB)
+		db, err := icontext.DB(r.Context())
+		if err != nil {
+			render.Render(w, r, ErrInternalServer(err))
+			return
+		}
 		reqLogger := logging.Simple(r)
 		var u *database.User
 		idParam := chi.URLParam(r, "id")
@@ -139,7 +143,7 @@ func UserCtx(next http.Handler) http.Handler {
 				}
 			}
 		}
-		ctx := context.WithValue(r.Context(), internal.ContextKeyUser, u)
+		ctx := context.WithValue(r.Context(), icontext.KeyUser, u)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -171,7 +175,11 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	uReq.Password = hashedPassword
 
-	db := r.Context().Value(internal.ContextKeyDB).(*database.DB)
+	db, err := icontext.DB(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
 	u, err := uReq.Create(db)
 	if err != nil {
 		switch err.(type) {
@@ -206,7 +214,11 @@ func UserSignIn(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, ErrBadRequest(err))
 		return
 	}
-	u := r.Context().Value(internal.ContextKeyUser).(*database.User)
+	u, err := icontext.User(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
 	if !auth.ComparePasswords(sReq.Password, u.Password) {
 		err := fmt.Errorf("wrong password supplied for user %d", u.ID)
 		reqLogger.Err(err).Msg("")
@@ -221,9 +233,21 @@ func UserSignIn(w http.ResponseWriter, r *http.Request) {
 
 // UserList ...
 func UserList(w http.ResponseWriter, r *http.Request) {
-	db := r.Context().Value(internal.ContextKeyDB).(*database.DB)
-	page := r.Context().Value(internal.ContextKeyPage).(int)
-	pageSize := r.Context().Value(internal.ContextKeyPageSize).(int)
+	db, err := icontext.DB(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
+	page, err := icontext.Page(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
+	pageSize, err := icontext.PageSize(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
 
 	u := &database.User{}
 	reqLogger := logging.Simple(r)
@@ -254,7 +278,11 @@ func UserUpdate(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, ErrBadRequest(err))
 		return
 	}
-	u := r.Context().Value(internal.ContextKeyUser).(*database.User)
+	u, err := icontext.User(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
 	uReq.ID = u.ID
 	hashedPassword, err := auth.HashAndSaltPassword(uReq.Password)
 	if err != nil {
@@ -264,7 +292,11 @@ func UserUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 	uReq.Password = hashedPassword
 
-	db := r.Context().Value(internal.ContextKeyDB).(*database.DB)
+	db, err := icontext.DB(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
 	u, err = uReq.Update(db)
 	if err != nil {
 		switch err.(type) {
@@ -284,15 +316,27 @@ func UserUpdate(w http.ResponseWriter, r *http.Request) {
 
 // UserGet ...
 func UserGet(w http.ResponseWriter, r *http.Request) {
-	u := r.Context().Value(internal.ContextKeyUser).(*database.User)
+	u, err := icontext.User(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
 	render.Status(r, http.StatusOK)
 	render.Render(w, r, &UserResponse{User: u})
 }
 
 // UserDelete ...
 func UserDelete(w http.ResponseWriter, r *http.Request) {
-	u := r.Context().Value(internal.ContextKeyUser).(*database.User)
-	db := r.Context().Value(internal.ContextKeyDB).(*database.DB)
+	u, err := icontext.User(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
+	db, err := icontext.DB(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
 	reqLogger := logging.Simple(r)
 
 	if err := u.Delete(db); err != nil {

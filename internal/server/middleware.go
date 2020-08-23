@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/go-chi/render"
-	"github.com/padurean/purest/internal"
 	"github.com/padurean/purest/internal/auth"
+	icontext "github.com/padurean/purest/internal/context"
 	"github.com/padurean/purest/internal/controller"
 )
 
@@ -27,7 +27,7 @@ func authenticate(next http.Handler) http.Handler {
 			render.Render(w, r, controller.ErrUnauthorized(err))
 			return
 		}
-		ctx := context.WithValue(r.Context(), internal.ContextKeyJSONToken, jsonToken)
+		ctx := context.WithValue(r.Context(), icontext.KeyJSONToken, jsonToken)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -38,7 +38,7 @@ func paginate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		page := 1
 		var err error
-		if pageParam := r.URL.Query().Get(internal.ContextKeyPage.Str()); pageParam != "" {
+		if pageParam := r.URL.Query().Get(icontext.KeyPage.Str()); pageParam != "" {
 			page, err = strconv.Atoi(pageParam)
 			if err != nil {
 				render.Render(w, r, controller.ErrBadRequest(
@@ -47,7 +47,7 @@ func paginate(next http.Handler) http.Handler {
 			}
 		}
 		pageSize := pageSizeDefault
-		if pageSizeParam := r.URL.Query().Get(internal.ContextKeyPageSize.Str()); pageSizeParam != "" {
+		if pageSizeParam := r.URL.Query().Get(icontext.KeyPageSize.Str()); pageSizeParam != "" {
 			pageSize, err = strconv.Atoi(pageSizeParam)
 			if err != nil {
 				render.Render(w, r, controller.ErrBadRequest(
@@ -55,8 +55,8 @@ func paginate(next http.Handler) http.Handler {
 				return
 			}
 		}
-		ctx := context.WithValue(r.Context(), internal.ContextKeyPage, page)
-		ctx = context.WithValue(ctx, internal.ContextKeyPageSize, pageSize)
+		ctx := context.WithValue(r.Context(), icontext.KeyPage, page)
+		ctx = context.WithValue(ctx, icontext.KeyPageSize, pageSize)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

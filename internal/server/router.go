@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/docgen"
-	"github.com/padurean/purest/internal"
+	icontext "github.com/padurean/purest/internal/context"
 	"github.com/padurean/purest/internal/controller"
 	"github.com/padurean/purest/internal/database"
 	"github.com/padurean/purest/internal/env"
@@ -36,7 +36,7 @@ func (router Router) setupCommonMiddlewares(db *database.DB, logger *logging.Log
 		// processing should be stopped.
 		middleware.Timeout(60*time.Second),
 		// set DB connection on request context
-		middleware.WithValue(internal.ContextKeyDB, db),
+		middleware.WithValue(icontext.KeyDB, db),
 
 		//--> logging middleware
 		hlog.NewHandler(*logger.Logger),

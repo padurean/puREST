@@ -36,6 +36,9 @@ func init() {
 	_ = validate.RegisterValidation("password", func(fl validator.FieldLevel) bool {
 		return auth.IsStrongPassword(fl.Field().String()) == nil
 	})
+	_ = validate.RegisterValidation("role", func(fl validator.FieldLevel) bool {
+		return auth.IsValidRole(int(fl.Field().Uint()))
+	})
 	//<--
 
 	//--> register validator translation
@@ -57,6 +60,17 @@ func init() {
 		},
 		func(ut ut.Translator, fe validator.FieldError) string {
 			t, _ := ut.T("password", fe.Field())
+			return t
+		},
+	)
+	_ = validate.RegisterTranslation(
+		"role",
+		translator,
+		func(ut ut.Translator) error {
+			return ut.Add("role", "invalid role - "+auth.ValidRolesMsg, true)
+		},
+		func(ut ut.Translator, fe validator.FieldError) string {
+			t, _ := ut.T("role", fe.Field())
 			return t
 		},
 	)

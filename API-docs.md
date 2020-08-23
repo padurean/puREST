@@ -43,13 +43,13 @@ Welcome to the puREST generated docs!
 	- **/v1/***
 		- **/users/***
 			- **/**
+				- _POST_
+					- [authenticate]()
+					- [UserCreate]()
 				- _GET_
 					- [authenticate]()
 					- [paginate]()
 					- [UserList]()
-				- _POST_
-					- [authenticate]()
-					- [UserCreate]()
 
 </details>
 <details>

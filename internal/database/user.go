@@ -16,7 +16,7 @@ type User struct {
 	Email     string         `json:"email" validate:"required,email"`
 	FirstName sql.NullString `json:"first_name" db:"first_name"`
 	LastName  sql.NullString `json:"last_name" db:"last_name"`
-	Role      auth.Role      `json:"role"`
+	Role      auth.Role      `json:"role" validate:"required,role"`
 	Created   time.Time      `json:"created"`
 	Updated   time.Time      `json:"updated"`
 	Deleted   sql.NullTime   `json:"deleted,omitempty"`

@@ -157,6 +157,7 @@ func UserCtx(next http.Handler) http.Handler {
 // @param Authorization header string true "Bearer <token>"
 // @param UserRequest body controller.UserRequest true "Request body payload"
 // @success 201 {object} controller.UserResponse
+// @failure 401 {object} controller.ErrResponse
 // @router /users [post]
 func UserCreate(w http.ResponseWriter, r *http.Request) {
 	uReq := &UserRequest{}
@@ -203,9 +204,12 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 // @summary Signs-in the specified user
 // @accept application/json
 // @produce application/json
+// @param usernameOrEmail path string true "Username or email"
 // @param SignInRequest body controller.SignInRequest true "Request body payload"
 // @success 200 {object} controller.SignInResponse
-// @router /sign-in/{usernameOrEmail} [post]
+// @failure 401 {object} controller.ErrResponse
+// @failure 404 {object} controller.ErrResponse
+// @router /users/sign-in/{usernameOrEmail} [post]
 func UserSignIn(w http.ResponseWriter, r *http.Request) {
 	reqLogger := logging.Simple(r)
 	sReq := &SignInRequest{}
@@ -232,6 +236,17 @@ func UserSignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 // UserList ...
+// @id UserList
+// @tags user
+// @summary Lists users
+// @accept application/json
+// @produce application/json
+// @param Authorization header string true "Bearer <token>"
+// @param page query int false "Page number"
+// @param pageSize query int false "Page size (default 20)"
+// @success 200 {array} controller.UserResponse
+// @failure 401 {object} controller.ErrResponse
+// @router /users [get]
 func UserList(w http.ResponseWriter, r *http.Request) {
 	db, err := icontext.DB(r.Context())
 	if err != nil {
@@ -270,6 +285,18 @@ func UserList(w http.ResponseWriter, r *http.Request) {
 }
 
 // UserUpdate ...
+// @id UserUpdate
+// @tags user
+// @summary Updates an existing user
+// @accept application/json
+// @produce application/json
+// @param Authorization header string true "Bearer <token>"
+// @param id path int true "User id"
+// @param UserRequest body controller.UserRequest true "Request body payload"
+// @success 200 {object} controller.UserResponse
+// @failure 401 {object} controller.ErrResponse
+// @failure 404 {object} controller.ErrResponse
+// @router /users/{id} [put]
 func UserUpdate(w http.ResponseWriter, r *http.Request) {
 	uReq := &UserRequest{}
 	reqLogger := logging.Simple(r)
@@ -315,6 +342,17 @@ func UserUpdate(w http.ResponseWriter, r *http.Request) {
 }
 
 // UserGet ...
+// @id UserGet
+// @tags user
+// @summary Gets an existing user
+// @accept application/json
+// @produce application/json
+// @param Authorization header string true "Bearer <token>"
+// @param id path int true "User id"
+// @success 200 {object} controller.UserResponse
+// @failure 401 {object} controller.ErrResponse
+// @failure 404 {object} controller.ErrResponse
+// @router /users/{id} [get]
 func UserGet(w http.ResponseWriter, r *http.Request) {
 	u, err := icontext.User(r.Context())
 	if err != nil {
@@ -326,6 +364,17 @@ func UserGet(w http.ResponseWriter, r *http.Request) {
 }
 
 // UserDelete ...
+// @id UserDelete
+// @tags user
+// @summary Deletes an existing user
+// @accept application/json
+// @produce application/json
+// @param Authorization header string true "Bearer <token>"
+// @param id path int true "User id"
+// @success 204
+// @failure 401 {object} controller.ErrResponse
+// @failure 404 {object} controller.ErrResponse
+// @router /users/{id} [delete]
 func UserDelete(w http.ResponseWriter, r *http.Request) {
 	u, err := icontext.User(r.Context())
 	if err != nil {
@@ -344,4 +393,5 @@ func UserDelete(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, ErrUnprocessableEntity(err))
 		return
 	}
+	render.Status(r, http.StatusNoContent)
 }

@@ -42,3 +42,16 @@ func ParseRole(roleStr string) (Role, error) {
 	}
 	return 0, fmt.Errorf("unknown role %s", roleStr)
 }
+
+// ValidRolesMsg ...
+var ValidRolesMsg = fmt.Sprintf(
+	"valid roles: %d = %s, %d = %s",
+	RoleAdmin, RoleAdmin,
+	RoleAuditor, RoleAuditor,
+)
+
+// IsValidRole ...
+func IsValidRole(role int) bool {
+	_, ok := roles[strconv.Itoa(role)]
+	return ok
+}

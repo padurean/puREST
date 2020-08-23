@@ -10,7 +10,7 @@ type Role uint8
 
 // Roles ...
 const (
-	RoleAdmin Role = iota
+	RoleAdmin Role = iota + 1
 	RoleAuditor
 )
 

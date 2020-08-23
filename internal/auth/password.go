@@ -17,8 +17,8 @@ func HashAndSaltPassword(password string) (string, error) {
 		return "", fmt.Errorf("error hashing password: %v", err)
 	}
 	hashedPassword := string(hashedPasswordBytes)
-	log.Debug().Msgf("password: %s, hashed password (len = %d): %s",
-		password, len([]rune(hashedPassword)), hashedPassword)
+	// log.Debug().Msgf("password: %s, hashed password (len = %d): %s",
+	// 	password, len([]rune(hashedPassword)), hashedPassword)
 	return hashedPassword, nil
 }
 

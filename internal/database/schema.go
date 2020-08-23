@@ -1,6 +1,9 @@
 package database
 
 import (
+	"database/sql"
+
+	"github.com/padurean/purest/internal/auth"
 	"github.com/padurean/purest/internal/env"
 )
 
@@ -71,4 +74,30 @@ func Migrate(db *DB) {
 	// exec the schema or fail; multi-statement Exec behavior varies between
 	// database drivers;  pq will exec them all, sqlite3 won't, ymmv
 	db.MustExec(schemaSQL)
+}
+
+// CreateDefaultUser ...
+func CreateDefaultUser(db *DB) {
+	u := User{
+		Username: "admin",
+		Password: "admin",
+		Role:     auth.RoleAdmin,
+	}
+	_, err := u.GetByUsername(db)
+	switch err {
+	case nil:
+		// nothing to do
+	case sql.ErrNoRows:
+		hashedPassword, err := auth.HashAndSaltPassword(u.Password)
+		if err != nil {
+			panic(err.Error())
+		}
+		u.Password = hashedPassword
+		_, err = u.Create(db)
+		if err != nil {
+			panic(err.Error())
+		}
+	default:
+		panic(err.Error())
+	}
 }

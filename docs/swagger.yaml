@@ -25,6 +25,8 @@ definitions:
         type: string
       token:
         type: string
+      warning:
+        type: string
     type: object
   controller.UserRequest:
     properties:
@@ -82,6 +84,23 @@ definitions:
     - role
     - username
     type: object
+  controller.UserUpdateEmailRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  controller.UserUpdatePasswordRequest:
+    properties:
+      new_password:
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
 info:
   contact: {}
   description: Golang REST API boilerplate with authentication using PASETO tokens, RBAC authorization, PostgreSQL and Swagger for API docs.
@@ -125,7 +144,7 @@ paths:
             $ref: '#/definitions/controller.ErrResponse'
       summary: Lists users
       tags:
-      - user
+      - users
     post:
       consumes:
       - application/json
@@ -138,7 +157,7 @@ paths:
         type: string
       - description: Request body payload
         in: body
-        name: UserRequest
+        name: payload
         required: true
         schema:
           $ref: '#/definitions/controller.UserRequest'
@@ -155,7 +174,7 @@ paths:
             $ref: '#/definitions/controller.ErrResponse'
       summary: Creates a new user
       tags:
-      - user
+      - users
   /users/{id}:
     delete:
       consumes:
@@ -186,7 +205,7 @@ paths:
             $ref: '#/definitions/controller.ErrResponse'
       summary: Deletes an existing user
       tags:
-      - user
+      - users
     get:
       consumes:
       - application/json
@@ -219,7 +238,7 @@ paths:
             $ref: '#/definitions/controller.ErrResponse'
       summary: Gets an existing user
       tags:
-      - user
+      - users
     put:
       consumes:
       - application/json
@@ -237,7 +256,7 @@ paths:
         type: integer
       - description: Request body payload
         in: body
-        name: UserRequest
+        name: payload
         required: true
         schema:
           $ref: '#/definitions/controller.UserRequest'
@@ -258,7 +277,106 @@ paths:
             $ref: '#/definitions/controller.ErrResponse'
       summary: Updates an existing user
       tags:
-      - user
+      - users
+  /users/email:
+    put:
+      consumes:
+      - application/json
+      operationId: UserUpdateEmail
+      parameters:
+      - description: Bearer <token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request body payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/controller.UserUpdateEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.ErrResponse'
+      summary: Updates the email for the currently signed-in user
+      tags:
+      - users
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      operationId: UserGetMe
+      parameters:
+      - description: Bearer <token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.ErrResponse'
+      summary: Gets the currently signed-in user
+      tags:
+      - users
+  /users/password:
+    put:
+      consumes:
+      - application/json
+      operationId: UserUpdatePassword
+      parameters:
+      - description: Bearer <token>
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request body payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/controller.UserUpdatePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/controller.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controller.ErrResponse'
+      summary: Updates the password for the currently signed-in user
+      tags:
+      - users
   /users/sign-in/{usernameOrEmail}:
     post:
       consumes:
@@ -272,7 +390,7 @@ paths:
         type: string
       - description: Request body payload
         in: body
-        name: SignInRequest
+        name: payload
         required: true
         schema:
           $ref: '#/definitions/controller.SignInRequest'
@@ -293,5 +411,5 @@ paths:
             $ref: '#/definitions/controller.ErrResponse'
       summary: Signs-in the specified user
       tags:
-      - user
+      - users
 swagger: "2.0"

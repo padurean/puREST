@@ -31,7 +31,7 @@ func main() {
 	db := database.MustConnect(env.GetDbDriver(), env.GetDbURL())
 	logger.Info().Msg("migrating database ...")
 	database.Migrate(db)
-	logger.Info().Msg("creating default user (if not exists) ...")
+	logger.Info().Msg("creating default admin user (if there is no user) ...")
 	database.CreateDefaultUser(db)
 
 	server.Start(env.GetHTTPPort(), logger, db)

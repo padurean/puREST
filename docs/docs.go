@@ -37,7 +37,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "users"
                 ],
                 "summary": "Lists users",
                 "operationId": "UserList",
@@ -88,7 +88,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "users"
                 ],
                 "summary": "Creates a new user",
                 "operationId": "UserCreate",
@@ -102,7 +102,7 @@ var doc = `{
                     },
                     {
                         "description": "Request body payload",
-                        "name": "UserRequest",
+                        "name": "payload",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -126,6 +126,156 @@ var doc = `{
                 }
             }
         },
+        "/users/email": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Updates the email for the currently signed-in user",
+                "operationId": "UserUpdateEmail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003ctoken\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Request body payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.UserUpdateEmailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.UserResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Gets the currently signed-in user",
+                "operationId": "UserGetMe",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003ctoken\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.UserResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/password": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Updates the password for the currently signed-in user",
+                "operationId": "UserUpdatePassword",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer \u003ctoken\u003e",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Request body payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.UserUpdatePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.UserResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/users/sign-in/{usernameOrEmail}": {
             "post": {
                 "consumes": [
@@ -135,7 +285,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "users"
                 ],
                 "summary": "Signs-in the specified user",
                 "operationId": "UserSignIn",
@@ -149,7 +299,7 @@ var doc = `{
                     },
                     {
                         "description": "Request body payload",
-                        "name": "SignInRequest",
+                        "name": "payload",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -188,7 +338,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "users"
                 ],
                 "summary": "Gets an existing user",
                 "operationId": "UserGet",
@@ -237,7 +387,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "users"
                 ],
                 "summary": "Updates an existing user",
                 "operationId": "UserUpdate",
@@ -258,7 +408,7 @@ var doc = `{
                     },
                     {
                         "description": "Request body payload",
-                        "name": "UserRequest",
+                        "name": "payload",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -295,7 +445,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "users"
                 ],
                 "summary": "Deletes an existing user",
                 "operationId": "UserDelete",
@@ -369,6 +519,9 @@ var doc = `{
                     "type": "string"
                 },
                 "token": {
+                    "type": "string"
+                },
+                "warning": {
                     "type": "string"
                 }
             }
@@ -451,6 +604,32 @@ var doc = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.UserUpdateEmailRequest": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.UserUpdatePasswordRequest": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "old_password"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "old_password": {
                     "type": "string"
                 }
             }

@@ -9,6 +9,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Default admin credentials
+const (
+	DefaultAdminUser     = "admin"
+	DefaultAdminPassword = "admin"
+)
+
 // HashAndSaltPassword ...
 func HashAndSaltPassword(password string) (string, error) {
 	hashedPasswordBytes, err :=

@@ -1,7 +1,7 @@
 package database
 
 import (
-	"database/sql"
+	"fmt"
 
 	"github.com/padurean/purest/internal/auth"
 	"github.com/padurean/purest/internal/env"
@@ -79,15 +79,16 @@ func Migrate(db *DB) {
 // CreateDefaultUser ...
 func CreateDefaultUser(db *DB) {
 	u := User{
-		Username: "admin",
-		Password: "admin",
+		Username: auth.DefaultAdminUser,
+		Password: auth.DefaultAdminPassword,
 		Role:     auth.RoleAdmin,
 	}
-	_, err := u.GetByUsername(db)
-	switch err {
-	case nil:
-		// nothing to do
-	case sql.ErrNoRows:
+	users, err := u.List(db, 1, 0)
+	if err != nil {
+		panic(fmt.Sprintf(
+			"error listing users to find out if default user needs to be created: %v", err))
+	}
+	if len(users) == 0 {
 		hashedPassword, err := auth.HashAndSaltPassword(u.Password)
 		if err != nil {
 			panic(err.Error())
@@ -97,7 +98,5 @@ func CreateDefaultUser(db *DB) {
 		if err != nil {
 			panic(err.Error())
 		}
-	default:
-		panic(err.Error())
 	}
 }

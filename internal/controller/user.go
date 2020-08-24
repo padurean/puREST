@@ -35,6 +35,7 @@ func (sr *SignInRequest) Bind(r *http.Request) error {
 type SignInResponse struct {
 	Token      string    `json:"token"`
 	Expiration time.Time `json:"expiration"`
+	Warning    string    `json:"warning,omitempty"`
 }
 
 // Render ...
@@ -75,6 +76,65 @@ func (u *UserResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	u.LastName = NullString(u.User.LastName)
 	u.Deleted = NullTime(u.User.Deleted)
 	return nil
+}
+
+// UserUpdatePasswordRequest ...
+type UserUpdatePasswordRequest struct {
+	OldPassword string `json:"old_password" validate:"required"`
+	NewPassword string `json:"new_password" validate:"required,password"`
+}
+
+// Bind ...
+func (u *UserUpdatePasswordRequest) Bind(r *http.Request) error {
+	if err := validator.Validate(u); err != nil {
+		return err
+	}
+	return nil
+}
+
+// UserUpdateEmailRequest ...
+type UserUpdateEmailRequest struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
+// Bind ...
+func (u *UserUpdateEmailRequest) Bind(r *http.Request) error {
+	if err := validator.Validate(u); err != nil {
+		return err
+	}
+	return nil
+}
+
+// SignedInUserCtx ...
+func SignedInUserCtx(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		db, err := icontext.DB(r.Context())
+		if err != nil {
+			render.Render(w, r, ErrInternalServer(err))
+			return
+		}
+		reqLogger := logging.Simple(r)
+		var u *database.User
+		jsonToken, err := icontext.JSONToken(r.Context())
+		if err != nil {
+			render.Render(w, r, ErrUnauthorized(err))
+			return
+		}
+		u, err = (&database.User{ID: jsonToken.UserID}).GetByID(db)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				render.Render(w, r, ErrNotFound)
+				return
+			default:
+				reqLogger.Err(err).Msgf("error getting signed-in user with id %d", jsonToken.UserID)
+				render.Render(w, r, ErrInternalServer(err))
+				return
+			}
+		}
+		ctx := context.WithValue(r.Context(), icontext.KeySignedInUser, u)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 // UserCtx ...
@@ -150,12 +210,12 @@ func UserCtx(next http.Handler) http.Handler {
 
 // UserCreate ...
 // @id UserCreate
-// @tags user
+// @tags users
 // @summary Creates a new user
 // @accept application/json
 // @produce application/json
 // @param Authorization header string true "Bearer <token>"
-// @param UserRequest body controller.UserRequest true "Request body payload"
+// @param payload body controller.UserRequest true "Request body payload"
 // @success 201 {object} controller.UserResponse
 // @failure 401 {object} controller.ErrResponse
 // @router /users [post]
@@ -200,12 +260,12 @@ func UserCreate(w http.ResponseWriter, r *http.Request) {
 
 // UserSignIn ...
 // @id UserSignIn
-// @tags user
+// @tags users
 // @summary Signs-in the specified user
 // @accept application/json
 // @produce application/json
 // @param usernameOrEmail path string true "Username or email"
-// @param SignInRequest body controller.SignInRequest true "Request body payload"
+// @param payload body controller.SignInRequest true "Request body payload"
 // @success 200 {object} controller.SignInResponse
 // @failure 401 {object} controller.ErrResponse
 // @failure 404 {object} controller.ErrResponse
@@ -231,13 +291,23 @@ func UserSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 	token, expiration, err := auth.GenerateToken(u.ID, u.Role)
 	reqLogger.Debug().Msgf("generated token: %s, Error: %v", token, err)
+	warning := ""
+	if u.Username == auth.DefaultAdminUser && sReq.Password == auth.DefaultAdminPassword {
+		warning = fmt.Sprintf(
+			"%s user is using the default password, to improve security please change it ASAP",
+			u.Username)
+	}
+	sReq.Password = ""
 	render.Status(r, http.StatusOK)
-	render.Render(w, r, &SignInResponse{Token: token, Expiration: expiration})
+	render.Render(w, r, &SignInResponse{
+		Token:      token,
+		Expiration: expiration,
+		Warning:    warning})
 }
 
 // UserList ...
 // @id UserList
-// @tags user
+// @tags users
 // @summary Lists users
 // @accept application/json
 // @produce application/json
@@ -286,13 +356,13 @@ func UserList(w http.ResponseWriter, r *http.Request) {
 
 // UserUpdate ...
 // @id UserUpdate
-// @tags user
+// @tags users
 // @summary Updates an existing user
 // @accept application/json
 // @produce application/json
 // @param Authorization header string true "Bearer <token>"
 // @param id path int true "User id"
-// @param UserRequest body controller.UserRequest true "Request body payload"
+// @param payload body controller.UserRequest true "Request body payload"
 // @success 200 {object} controller.UserResponse
 // @failure 401 {object} controller.ErrResponse
 // @failure 404 {object} controller.ErrResponse
@@ -341,9 +411,113 @@ func UserUpdate(w http.ResponseWriter, r *http.Request) {
 	render.Render(w, r, &UserResponse{User: u})
 }
 
+// UserUpdatePassword ...
+// @id UserUpdatePassword
+// @tags users
+// @summary Updates the password for the currently signed-in user
+// @accept application/json
+// @produce application/json
+// @param Authorization header string true "Bearer <token>"
+// @param payload body controller.UserUpdatePasswordRequest true "Request body payload"
+// @success 200 {object} controller.UserResponse
+// @failure 401 {object} controller.ErrResponse
+// @failure 404 {object} controller.ErrResponse
+// @router /users/password [put]
+func UserUpdatePassword(w http.ResponseWriter, r *http.Request) {
+	uReq := &UserUpdatePasswordRequest{}
+	reqLogger := logging.Simple(r)
+	if err := render.Bind(r, uReq); err != nil {
+		reqLogger.Err(err).Msgf("error unmarshaling password update from JSON")
+		render.Render(w, r, ErrBadRequest(err))
+		return
+	}
+	u, err := icontext.SignedInUser(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
+	if !auth.ComparePasswords(uReq.OldPassword, u.Password) {
+		render.Render(w, r, ErrUnauthorized(fmt.Errorf("old password is incorrect")))
+		return
+	}
+	hashedPassword, err := auth.HashAndSaltPassword(uReq.NewPassword)
+	if err != nil {
+		reqLogger.Err(err).Msgf("error hashing and setting password")
+		render.Render(w, r, ErrUnprocessableEntity(err))
+		return
+	}
+	uReq.OldPassword = ""
+	uReq.NewPassword = ""
+	u.Password = hashedPassword
+
+	db, err := icontext.DB(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
+	u, err = u.Update(db)
+	if err != nil {
+		reqLogger.Err(err).Msgf("error updating password for user %d", u.ID)
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
+
+	render.Status(r, http.StatusOK)
+	render.Render(w, r, &UserResponse{User: u})
+}
+
+// UserUpdateEmail ...
+// @id UserUpdateEmail
+// @tags users
+// @summary Updates the email for the currently signed-in user
+// @accept application/json
+// @produce application/json
+// @param Authorization header string true "Bearer <token>"
+// @param payload body controller.UserUpdateEmailRequest true "Request body payload"
+// @success 200 {object} controller.UserResponse
+// @failure 401 {object} controller.ErrResponse
+// @failure 404 {object} controller.ErrResponse
+// @router /users/email [put]
+func UserUpdateEmail(w http.ResponseWriter, r *http.Request) {
+	uReq := &UserUpdateEmailRequest{}
+	reqLogger := logging.Simple(r)
+	if err := render.Bind(r, uReq); err != nil {
+		reqLogger.Err(err).Msgf("error unmarshaling email update from JSON")
+		render.Render(w, r, ErrBadRequest(err))
+		return
+	}
+	u, err := icontext.SignedInUser(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
+	u.Email = uReq.Email
+
+	db, err := icontext.DB(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
+	u, err = u.Update(db)
+	if err != nil {
+		switch err.(type) {
+		case *database.ErrDuplicateRow:
+			render.Render(w, r, ErrUnprocessableEntity(err))
+			return
+		default:
+			reqLogger.Err(err).Msgf("error updating email for user %d", u.ID)
+			render.Render(w, r, ErrInternalServer(err))
+			return
+		}
+	}
+
+	render.Status(r, http.StatusOK)
+	render.Render(w, r, &UserResponse{User: u})
+}
+
 // UserGet ...
 // @id UserGet
-// @tags user
+// @tags users
 // @summary Gets an existing user
 // @accept application/json
 // @produce application/json
@@ -363,9 +537,30 @@ func UserGet(w http.ResponseWriter, r *http.Request) {
 	render.Render(w, r, &UserResponse{User: u})
 }
 
+// UserGetMe ...
+// @id UserGetMe
+// @tags users
+// @summary Gets the currently signed-in user
+// @accept application/json
+// @produce application/json
+// @param Authorization header string true "Bearer <token>"
+// @success 200 {object} controller.UserResponse
+// @failure 401 {object} controller.ErrResponse
+// @failure 404 {object} controller.ErrResponse
+// @router /users/me [get]
+func UserGetMe(w http.ResponseWriter, r *http.Request) {
+	u, err := icontext.SignedInUser(r.Context())
+	if err != nil {
+		render.Render(w, r, ErrInternalServer(err))
+		return
+	}
+	render.Status(r, http.StatusOK)
+	render.Render(w, r, &UserResponse{User: u})
+}
+
 // UserDelete ...
 // @id UserDelete
-// @tags user
+// @tags users
 // @summary Deletes an existing user
 // @accept application/json
 // @produce application/json

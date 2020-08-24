@@ -26,6 +26,7 @@ func Start(port string, logger *logging.Logger, db *database.DB) {
 	go gracefullShutdown(server, logger, quit, done)
 
 	logger.Info().Msgf("server is ready to handle HTTP requests on port %s", port)
+	logger.Info().Msgf("Swagger UI is available at /swagger/ path (with a trailing slash)")
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Fatal().Err(err).Msgf("server startup on port %s failed", port)
 	}

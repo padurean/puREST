@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/docgen"
+	"github.com/padurean/purest/internal/auth"
 	icontext "github.com/padurean/purest/internal/context"
 	"github.com/padurean/purest/internal/controller"
 	"github.com/padurean/purest/internal/database"
@@ -80,17 +81,27 @@ func (router Router) setupRoutes() {
 	router.Route("/api", func(router chi.Router) {
 		router.Route("/v1", func(router chi.Router) {
 
+			roleAdmin := auth.RoleAdmin
+			authAdmin := authenticate(&roleAdmin)
+			authAny := authenticate(nil)
+
 			router.Route("/users", func(router chi.Router) {
 				router.With(controller.UserCtx).Post("/sign-in/{usernameOrEmail}", controller.UserSignIn)
-				routerWithAuth := router.With(authenticate)
-				routerWithAuth.Post("/", controller.UserCreate)
-				routerWithAuth.With(paginate).Get("/", controller.UserList)
-				routerWithAuth.Route("/{id}", func(router chi.Router) {
-					router.Use(controller.UserCtx)
-					router.Get("/", controller.UserGet)
-					router.Put("/", controller.UserUpdate)
-					router.Delete("/", controller.UserDelete)
+
+				routerAdmin := router.With(authAdmin)
+				routerAdmin.Post("/", controller.UserCreate)
+				routerAdmin.With(paginate).Get("/", controller.UserList)
+				routerAdmin.Route("/{id}", func(routerAdmin chi.Router) {
+					routerAdmin.Use(controller.UserCtx)
+					routerAdmin.Get("/", controller.UserGet)
+					routerAdmin.Put("/", controller.UserUpdate)
+					routerAdmin.Delete("/", controller.UserDelete)
 				})
+
+				routerAuthAny := router.With(authAny).With(controller.SignedInUserCtx)
+				routerAuthAny.Get("/me", controller.UserGetMe)
+				routerAuthAny.Put("/password", controller.UserUpdatePassword)
+				routerAuthAny.Put("/email", controller.UserUpdateEmail)
 			})
 
 		})

@@ -39,4 +39,11 @@ Run it:
 
 `go run cmd/server/main.go`
 
+or build it and then run it:
+
+```console
+go build -o puREST ./cmd/server/main.go
+./puREST
+```
+
 The built-in Swagger UI can be accessed at: <http://localhost:8000/swagger/>

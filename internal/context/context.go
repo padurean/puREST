@@ -13,11 +13,12 @@ type Key string
 
 // ContextKey ...
 const (
-	KeyDB        Key = "db"
-	KeyUser      Key = "user"
-	KeyJSONToken Key = "jsonToken"
-	KeyPage      Key = "page"
-	KeyPageSize  Key = "pageSize"
+	KeyDB           Key = "db"
+	KeyUser         Key = "user"
+	KeySignedInUser Key = "signedInUser"
+	KeyJSONToken    Key = "jsonToken"
+	KeyPage         Key = "page"
+	KeyPageSize     Key = "pageSize"
 )
 
 // Str ...
@@ -39,6 +40,15 @@ func User(ctx context.Context) (*database.User, error) {
 	u, ok := ctx.Value(KeyUser).(*database.User)
 	if !ok {
 		return nil, fmt.Errorf("no User found in given context for key %v", KeyUser)
+	}
+	return u, nil
+}
+
+// SignedInUser retrieves the signed-in User from the given context
+func SignedInUser(ctx context.Context) (*database.User, error) {
+	u, ok := ctx.Value(KeySignedInUser).(*database.User)
+	if !ok {
+		return nil, fmt.Errorf("no SignedInUser found in given context for key %v", KeySignedInUser)
 	}
 	return u, nil
 }

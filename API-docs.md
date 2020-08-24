@@ -43,13 +43,88 @@ Welcome to the puREST generated docs!
 	- **/v1/***
 		- **/users/***
 			- **/**
-				- _POST_
-					- [authenticate]()
-					- [UserCreate]()
 				- _GET_
-					- [authenticate]()
+					- [authenticate.func1]()
 					- [paginate]()
 					- [UserList]()
+				- _POST_
+					- [authenticate.func1]()
+					- [UserCreate]()
+
+</details>
+<details>
+<summary>`/api/*/v1/*/users/*/email`</summary>
+
+- [RequestID]()
+- [RealIP]()
+- [Recoverer]()
+- [Heartbeat.func1]()
+- [Timeout.func1]()
+- [WithValue.func1]()
+- [NewHandler.func1]()
+- [RemoteAddrHandler.func1]()
+- [UserAgentHandler.func1]()
+- [RefererHandler.func1]()
+- [RequestIDHandler.func1]()
+- [WithValue.func1]()
+- **/api/***
+	- **/v1/***
+		- **/users/***
+			- **/email**
+				- _PUT_
+					- [authenticate.func1]()
+					- [SignedInUserCtx]()
+					- [UserUpdateEmail]()
+
+</details>
+<details>
+<summary>`/api/*/v1/*/users/*/me`</summary>
+
+- [RequestID]()
+- [RealIP]()
+- [Recoverer]()
+- [Heartbeat.func1]()
+- [Timeout.func1]()
+- [WithValue.func1]()
+- [NewHandler.func1]()
+- [RemoteAddrHandler.func1]()
+- [UserAgentHandler.func1]()
+- [RefererHandler.func1]()
+- [RequestIDHandler.func1]()
+- [WithValue.func1]()
+- **/api/***
+	- **/v1/***
+		- **/users/***
+			- **/me**
+				- _GET_
+					- [authenticate.func1]()
+					- [SignedInUserCtx]()
+					- [UserGetMe]()
+
+</details>
+<details>
+<summary>`/api/*/v1/*/users/*/password`</summary>
+
+- [RequestID]()
+- [RealIP]()
+- [Recoverer]()
+- [Heartbeat.func1]()
+- [Timeout.func1]()
+- [WithValue.func1]()
+- [NewHandler.func1]()
+- [RemoteAddrHandler.func1]()
+- [UserAgentHandler.func1]()
+- [RefererHandler.func1]()
+- [RequestIDHandler.func1]()
+- [WithValue.func1]()
+- **/api/***
+	- **/v1/***
+		- **/users/***
+			- **/password**
+				- _PUT_
+					- [authenticate.func1]()
+					- [SignedInUserCtx]()
+					- [UserUpdatePassword]()
 
 </details>
 <details>
@@ -97,12 +172,12 @@ Welcome to the puREST generated docs!
 			- **/{id}/***
 				- [UserCtx]()
 				- **/**
+					- _DELETE_
+						- [UserDelete]()
 					- _GET_
 						- [UserGet]()
 					- _PUT_
 						- [UserUpdate]()
-					- _DELETE_
-						- [UserDelete]()
 
 </details>
 <details>
@@ -126,4 +201,4 @@ Welcome to the puREST generated docs!
 
 </details>
 
-Total # of routes: 5
+Total # of routes: 8

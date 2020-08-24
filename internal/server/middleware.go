@@ -14,22 +14,31 @@ import (
 	"github.com/padurean/purest/internal/controller"
 )
 
-func authenticate(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" {
-			render.Render(w, r, controller.ErrUnauthorized(errors.New("missing Authorization header")))
-			return
-		}
-		token := strings.TrimPrefix(authHeader, "Bearer ")
-		jsonToken, err := auth.VerifyToken(token)
-		if err != nil {
-			render.Render(w, r, controller.ErrUnauthorized(err))
-			return
-		}
-		ctx := context.WithValue(r.Context(), icontext.KeyJSONToken, jsonToken)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+func authenticate(role *auth.Role) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				render.Render(w, r, controller.ErrUnauthorized(errors.New("missing Authorization header")))
+				return
+			}
+			token := strings.TrimPrefix(authHeader, "Bearer ")
+			jsonToken, err := auth.VerifyToken(token)
+			if err != nil {
+				render.Render(w, r, controller.ErrUnauthorized(err))
+				return
+			}
+			if role != nil && (*role) != jsonToken.Role {
+				render.Render(w, r, controller.ErrUnauthorized(
+					fmt.Errorf(
+						"%s role has insufficient permissions: this operation requires the %s role",
+						jsonToken.Role, *role)))
+				return
+			}
+			ctx := context.WithValue(r.Context(), icontext.KeyJSONToken, jsonToken)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }
 
 const pageSizeDefault = 20
